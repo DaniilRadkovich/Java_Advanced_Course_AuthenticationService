@@ -13,5 +13,5 @@ spring:
       hibernate:
         format_sql: true
 
-  JWT_SECRET: KZSHyaAUVhrpWoTlO7DkzqozsZBt62dxRNYPm53iRzA
+JWT_SECRET: KZSHyaAUVhrpWoTlO7DkzqozsZBt62dxRNYPm53iRzA
 
