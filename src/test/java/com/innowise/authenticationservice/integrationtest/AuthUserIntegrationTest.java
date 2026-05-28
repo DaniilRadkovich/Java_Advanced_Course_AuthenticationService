@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.innowise.authenticationservice.BaseIntegrationTest;
 import com.innowise.authenticationservice.model.dto.request.LoginRequest;
 import com.innowise.authenticationservice.model.dto.request.RefreshTokenRequest;
 import com.innowise.authenticationservice.model.dto.request.RegisterRequest;
@@ -33,7 +34,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 @Testcontainers
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-class AuthUserIntegrationTest {
+class AuthUserIntegrationTest extends BaseIntegrationTest {
 
   @Autowired private MockMvc mockMvc;
 
