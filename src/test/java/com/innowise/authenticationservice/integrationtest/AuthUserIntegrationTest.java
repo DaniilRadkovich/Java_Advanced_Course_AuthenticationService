@@ -30,6 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.springframework.security.test.context.support.WithMockUser;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
@@ -221,7 +222,7 @@ class AuthUserIntegrationTest extends BaseIntegrationTest {
 
     String response =
         mockMvc
-            .perform(post("/api/v1/auth/promote/{id}", id))
+            .perform(post("/api/v1/auth/promote/{id}", id).with(csrf()))
             .andExpect(status().isOk())
             .andReturn()
             .getResponse()
