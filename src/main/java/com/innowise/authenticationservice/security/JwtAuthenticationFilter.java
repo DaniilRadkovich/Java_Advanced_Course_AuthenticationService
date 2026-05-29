@@ -1,7 +1,6 @@
 package com.innowise.authenticationservice.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.innowise.authenticationservice.exception.ErrorResponse;
 import com.innowise.authenticationservice.exception.TokenLifetimeValidationException;
 import com.innowise.authenticationservice.model.entity.AuthUser;
 import com.innowise.authenticationservice.repository.AuthUserRepository;
