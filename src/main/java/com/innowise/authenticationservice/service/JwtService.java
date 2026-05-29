@@ -23,7 +23,7 @@ public class JwtService {
 
   private final SecretKey secretKey;
 
-  public JwtService(@Value("${JWT_SECRET}") String secret) {
+  public JwtService(@Value("${jwt.secret-key}") String secret) {
     if (secret == null || secret.isBlank()) {
       throw new IllegalArgumentException("JWT secret must not be empty!");
     }

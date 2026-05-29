@@ -7,4 +7,5 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
 
-JWT_SECRET: ${JWT_SECRET}
+jwt:
+ secret-key: ${JWT_SECRET}
