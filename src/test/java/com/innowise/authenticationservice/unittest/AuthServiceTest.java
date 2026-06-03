@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.innowise.authenticationservice.exception.InvalidTokenException;
+import com.innowise.authenticationservice.exception.UserNotFoundException;
 import com.innowise.authenticationservice.exception.UserRegisterException;
 import com.innowise.authenticationservice.exception.WrongPasswordException;
 import com.innowise.authenticationservice.model.dto.request.LoginRequest;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
@@ -184,11 +186,9 @@ class AuthServiceTest {
     TokenValidationRequest request = new TokenValidationRequest("invalid-token");
 
     when(jwtService.parse("invalid-token")).thenThrow(new RuntimeException());
-
-    TokenValidationResponse response = authService.validate(request);
-
-    assertThat(response.isActive()).isFalse();
-    assertThat(response.getUserId()).isNull();
+    assertThatThrownBy(() -> authService.validate(request))
+        .isInstanceOf(BadCredentialsException.class)
+        .hasMessageContaining("Token is invalid! Access denied! Required token refresh!");
   }
 
   @Test
@@ -210,7 +210,7 @@ class AuthServiceTest {
 
     when(authUserRepository.findById(userId)).thenReturn(Optional.empty());
     assertThatThrownBy(() -> authService.promoteToAdmin(userId))
-        .isInstanceOf(UserRegisterException.class)
+        .isInstanceOf(UserNotFoundException.class)
         .hasMessageContaining("User not found");
   }
 }
