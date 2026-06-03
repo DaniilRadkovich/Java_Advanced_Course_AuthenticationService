@@ -15,8 +15,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-
 @Entity
 @Table(name = "auth_users")
 @Getter
@@ -24,7 +22,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@EnableJpaAuditing
 public class AuthUser extends BaseEntity {
 
   @Id

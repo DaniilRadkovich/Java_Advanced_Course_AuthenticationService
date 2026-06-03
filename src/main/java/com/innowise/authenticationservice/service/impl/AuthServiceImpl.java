@@ -1,6 +1,7 @@
 package com.innowise.authenticationservice.service.impl;
 
 import com.innowise.authenticationservice.exception.InvalidTokenException;
+import com.innowise.authenticationservice.exception.UserNotFoundException;
 import com.innowise.authenticationservice.exception.UserRegisterException;
 import com.innowise.authenticationservice.exception.WrongPasswordException;
 import com.innowise.authenticationservice.model.dto.request.LoginRequest;
@@ -19,6 +20,7 @@ import com.innowise.authenticationservice.service.JwtService;
 import io.jsonwebtoken.Claims;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
         authUserRepository
             .findByLogin(request.getLogin())
             .orElseThrow(
-                () -> new UserRegisterException(USER_ALREADY_EXISTS_MESSAGE + request.getLogin()));
+                () -> new UserNotFoundException(USER_NOT_FOUND_MESSAGE + request.getLogin()));
     if (!passwordEncoder.matches(request.getPassword(), authUser.getPassword())) {
       throw new WrongPasswordException("Invalid password!");
     }
@@ -86,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
     AuthUser authUser =
         authUserRepository
             .findByLogin(login)
-            .orElseThrow(() -> new UserRegisterException(USER_NOT_FOUND_MESSAGE + login));
+            .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_MESSAGE + login));
 
     String newAccessToken = jwtService.generateAccessToken(authUser);
     String newRefreshToken = jwtService.generateRefreshToken(authUser);
@@ -104,8 +106,7 @@ public class AuthServiceImpl implements AuthService {
       return new TokenValidationResponse(
           true, userId, login, role, "Token is valid! Access granted!");
     } catch (Exception e) {
-      return new TokenValidationResponse(
-          false, null, null, null, "Token is invalid! Access denied! Required token refresh!");
+      throw new BadCredentialsException("Token is invalid! Access denied! Required token refresh!");
     }
   }
 
@@ -115,7 +116,7 @@ public class AuthServiceImpl implements AuthService {
     AuthUser authUser =
         authUserRepository
             .findById(userId)
-            .orElseThrow(() -> new UserRegisterException(USER_NOT_FOUND_MESSAGE + userId));
+            .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_MESSAGE + userId));
 
     authUser.setRole(Role.ADMIN);
     return new PromoteUserResponse(
