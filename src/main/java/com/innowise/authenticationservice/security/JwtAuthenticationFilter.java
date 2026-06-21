@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innowise.authenticationservice.exception.TokenLifetimeValidationException;
 import com.innowise.authenticationservice.model.entity.AuthUser;
 import com.innowise.authenticationservice.repository.AuthUserRepository;
-import com.innowise.authenticationservice.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;

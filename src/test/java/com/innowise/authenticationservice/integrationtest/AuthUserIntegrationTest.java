@@ -21,7 +21,7 @@ import com.innowise.authenticationservice.model.dto.response.UserCreateResponse;
 import com.innowise.authenticationservice.model.entity.AuthUser;
 import com.innowise.authenticationservice.model.entity.Role;
 import com.innowise.authenticationservice.repository.AuthUserRepository;
-import com.innowise.authenticationservice.service.UserServiceClient;
+import com.innowise.authenticationservice.security.UserServiceClient;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.UUID;

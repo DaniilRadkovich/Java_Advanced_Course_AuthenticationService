@@ -2,6 +2,7 @@ package com.innowise.authenticationservice.unittest;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,8 +24,8 @@ import com.innowise.authenticationservice.model.dto.response.UserCreateResponse;
 import com.innowise.authenticationservice.model.entity.AuthUser;
 import com.innowise.authenticationservice.model.entity.Role;
 import com.innowise.authenticationservice.repository.AuthUserRepository;
-import com.innowise.authenticationservice.service.JwtService;
-import com.innowise.authenticationservice.service.UserServiceClient;
+import com.innowise.authenticationservice.security.JwtService;
+import com.innowise.authenticationservice.security.UserServiceClient;
 import com.innowise.authenticationservice.service.impl.AuthServiceImpl;
 import io.jsonwebtoken.Claims;
 import java.time.LocalDate;
@@ -112,6 +113,62 @@ class AuthServiceTest {
         .isInstanceOf(UserRegisterException.class)
         .hasMessageContaining("User already exists");
     verify(authUserRepository, never()).save(any());
+  }
+
+  @Test
+  void should_throwException_whenDbFalls_register() {
+    RegisterRequest request =
+        RegisterRequest.builder()
+            .login("DonDon")
+            .name("Don")
+            .surname("Jackson")
+            .birthDate(LocalDate.of(1990, 2, 2))
+            .email("don@email.com")
+            .password("password")
+            .build();
+
+    UserCreateResponse userCreateResponse = new UserCreateResponse();
+    userCreateResponse.setId(authUser.getId());
+
+    when(authUserRepository.existsByLogin(request.getLogin())).thenReturn(false);
+    when(userServiceClient.createUser(any(UserCreateRequest.class))).thenReturn(userCreateResponse);
+    when(passwordEncoder.encode(request.getPassword())).thenReturn("encodedPassword");
+    when(authUserRepository.save(any(AuthUser.class))).thenThrow(new RuntimeException("DB falls"));
+
+    assertThatThrownBy(() -> authService.register(request))
+        .isInstanceOf(UserRegisterException.class)
+        .hasMessage("Registration failed");
+
+    verify(userServiceClient).deleteUser(authUser.getId());
+  }
+
+  @Test
+  void should_throwExceptionAndDeleteUser_whenCompensationFails_register() {
+    RegisterRequest request =
+        RegisterRequest.builder()
+            .login("DonDon")
+            .name("Don")
+            .surname("Jackson")
+            .birthDate(LocalDate.of(1990, 2, 2))
+            .email("don@email.com")
+            .password("password")
+            .build();
+
+    UserCreateResponse userCreateResponse = new UserCreateResponse();
+    userCreateResponse.setId(authUser.getId());
+
+    when(authUserRepository.existsByLogin(request.getLogin())).thenReturn(false);
+    when(userServiceClient.createUser(any(UserCreateRequest.class))).thenReturn(userCreateResponse);
+    when(passwordEncoder.encode(request.getPassword())).thenReturn("encodedPassword");
+    when(authUserRepository.save(any(AuthUser.class))).thenThrow(new RuntimeException("DB falls"));
+
+    doThrow(new RuntimeException("Network falls")).when(userServiceClient).deleteUser(authUser.getId());
+
+    assertThatThrownBy(() -> authService.register(request))
+        .isInstanceOf(UserRegisterException.class)
+        .hasMessage("Registration failed");
+
+    verify(userServiceClient).deleteUser(authUser.getId());
   }
 
   @Test

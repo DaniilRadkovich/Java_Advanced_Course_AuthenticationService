@@ -1,4 +1,4 @@
-package com.innowise.authenticationservice.service;
+package com.innowise.authenticationservice.security;
 
 import com.innowise.authenticationservice.model.dto.request.UserCreateRequest;
 import com.innowise.authenticationservice.model.dto.response.UserCreateResponse;
