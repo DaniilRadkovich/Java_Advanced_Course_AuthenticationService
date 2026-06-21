@@ -30,5 +30,6 @@ public abstract class BaseIntegrationTest {
     registry.add("spring.datasource.password", postgres::getPassword);
     registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
     registry.add("JWT_SECRET", () -> "KZSHyaAUVhrpWoTlO7DkzqozsZBt62dxRNYPm53iRzA");
+    registry.add("INTERNAL_KEY", () -> "HGVklnjnwefebHVVjjnweklBJKbwkjbBHJhjbjhbwwf");
   }
 }

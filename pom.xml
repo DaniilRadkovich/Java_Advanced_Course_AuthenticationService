@@ -37,7 +37,6 @@
     <sonar.organization>daniilradkovich</sonar.organization>
     <sonar.exclusions>**/config/**,**/exception/**,**/model/**,**/security/**,**/repository/**
     </sonar.exclusions>
-
   </properties>
   <dependencies>
     <dependency>
@@ -102,6 +101,10 @@
       <version>0.8.14</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -157,6 +160,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.12</version>
         <executions>
           <execution>
             <goals>
@@ -179,5 +183,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>

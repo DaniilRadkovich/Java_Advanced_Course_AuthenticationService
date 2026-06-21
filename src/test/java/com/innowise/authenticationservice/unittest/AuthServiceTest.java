@@ -14,14 +14,17 @@ import com.innowise.authenticationservice.model.dto.request.LoginRequest;
 import com.innowise.authenticationservice.model.dto.request.RefreshTokenRequest;
 import com.innowise.authenticationservice.model.dto.request.RegisterRequest;
 import com.innowise.authenticationservice.model.dto.request.TokenValidationRequest;
+import com.innowise.authenticationservice.model.dto.request.UserCreateRequest;
 import com.innowise.authenticationservice.model.dto.response.PromoteUserResponse;
 import com.innowise.authenticationservice.model.dto.response.RegisterResponse;
 import com.innowise.authenticationservice.model.dto.response.TokenResponse;
 import com.innowise.authenticationservice.model.dto.response.TokenValidationResponse;
+import com.innowise.authenticationservice.model.dto.response.UserCreateResponse;
 import com.innowise.authenticationservice.model.entity.AuthUser;
 import com.innowise.authenticationservice.model.entity.Role;
 import com.innowise.authenticationservice.repository.AuthUserRepository;
 import com.innowise.authenticationservice.service.JwtService;
+import com.innowise.authenticationservice.service.UserServiceClient;
 import com.innowise.authenticationservice.service.impl.AuthServiceImpl;
 import io.jsonwebtoken.Claims;
 import java.time.LocalDate;
@@ -44,6 +47,8 @@ class AuthServiceTest {
   @Mock private JwtService jwtService;
 
   @Mock private PasswordEncoder passwordEncoder;
+
+  @Mock private UserServiceClient userServiceClient;
 
   @Mock private Claims claims;
 
@@ -72,8 +77,12 @@ class AuthServiceTest {
             .password("password")
             .build();
 
+    UserCreateResponse userCreateResponse = new UserCreateResponse();
+    userCreateResponse.setId(authUser.getId());
+
     when(authUserRepository.existsByLogin("DonDon")).thenReturn(false);
     when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
+    when(userServiceClient.createUser(any(UserCreateRequest.class))).thenReturn(userCreateResponse);
     when(authUserRepository.save(any(AuthUser.class))).thenReturn(authUser);
     when(jwtService.generateAccessToken(authUser)).thenReturn("accessToken");
 

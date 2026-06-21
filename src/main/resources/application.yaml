@@ -3,7 +3,7 @@ spring:
     name: authenticationservice
 
   profiles:
-    active: local
+    active: docker
 
   liquibase:
     enabled: true

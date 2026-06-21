@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:15-alpine
+    container_name: authservice-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -10,11 +11,11 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
-  authenticationservice:
+  authservice:
     build: .
-    container_name: authenticationservice
+    container_name: authservice-app
     ports:
-      - "${APP_PORT}:8080"
+      - "${SERVER_PORT}:8081"
     depends_on:
       - postgres
     environment:
@@ -23,6 +24,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
+      - SERVER_PORT=${SERVER_PORT}
 
 volumes:
   postgres-data:

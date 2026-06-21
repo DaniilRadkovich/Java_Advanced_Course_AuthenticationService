@@ -1,6 +1,8 @@
 package com.innowise.authenticationservice.integrationtest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -10,14 +12,18 @@ import com.innowise.authenticationservice.model.dto.request.LoginRequest;
 import com.innowise.authenticationservice.model.dto.request.RefreshTokenRequest;
 import com.innowise.authenticationservice.model.dto.request.RegisterRequest;
 import com.innowise.authenticationservice.model.dto.request.TokenValidationRequest;
+import com.innowise.authenticationservice.model.dto.request.UserCreateRequest;
 import com.innowise.authenticationservice.model.dto.response.PromoteUserResponse;
 import com.innowise.authenticationservice.model.dto.response.RegisterResponse;
 import com.innowise.authenticationservice.model.dto.response.TokenResponse;
 import com.innowise.authenticationservice.model.dto.response.TokenValidationResponse;
+import com.innowise.authenticationservice.model.dto.response.UserCreateResponse;
 import com.innowise.authenticationservice.model.entity.AuthUser;
 import com.innowise.authenticationservice.model.entity.Role;
 import com.innowise.authenticationservice.repository.AuthUserRepository;
+import com.innowise.authenticationservice.service.UserServiceClient;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +33,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -36,6 +43,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 class AuthUserIntegrationTest extends BaseIntegrationTest {
+
+  @MockitoBean
+  private UserServiceClient userServiceClient;
 
   @Autowired private MockMvc mockMvc;
 
@@ -57,10 +67,16 @@ class AuthUserIntegrationTest extends BaseIntegrationTest {
             .login("JR")
             .name("Jack")
             .surname("Richer")
-            .birthDate(LocalDate.of(1980, 1, 1))
+            .birthDate(LocalDate.of(1980, Month.JANUARY, 1))
             .email("jackricher@mail.com")
             .password("password")
             .build();
+
+    UserCreateResponse userCreateResponse = new UserCreateResponse();
+    userCreateResponse.setId(UUID.randomUUID());
+
+    when(userServiceClient.createUser(any(UserCreateRequest.class)))
+        .thenReturn(userCreateResponse);
 
     String response =
         mockMvc
@@ -91,6 +107,7 @@ class AuthUserIntegrationTest extends BaseIntegrationTest {
   void should_success_login() throws Exception {
 
     AuthUser authUser = new AuthUser();
+    authUser.setId(UUID.randomUUID());
     authUser.setLogin("JR");
     authUser.setPassword(passwordEncoder.encode("password"));
     authUser.setRole(Role.USER);
@@ -118,13 +135,18 @@ class AuthUserIntegrationTest extends BaseIntegrationTest {
 
   @Test
   void should_success_validateToken() throws Exception {
+    UserCreateResponse userCreateResponse = new UserCreateResponse();
+    userCreateResponse.setId(UUID.randomUUID());
+
+    when(userServiceClient.createUser(any(UserCreateRequest.class)))
+        .thenReturn(userCreateResponse);
 
     RegisterRequest registerRequest =
         RegisterRequest.builder()
             .login("JR")
             .name("Jack")
             .surname("Richer")
-            .birthDate(LocalDate.of(1980, 1, 1))
+            .birthDate(LocalDate.of(1980, Month.JANUARY, 1))
             .email("jackricher@mail.com")
             .password("password")
             .build();
@@ -167,6 +189,7 @@ class AuthUserIntegrationTest extends BaseIntegrationTest {
   void should_success_refreshToken() throws Exception {
 
     AuthUser authUser = new AuthUser();
+    authUser.setId(UUID.randomUUID());
     authUser.setLogin("JR");
     authUser.setPassword(passwordEncoder.encode("password"));
     authUser.setRole(Role.USER);
@@ -212,6 +235,7 @@ class AuthUserIntegrationTest extends BaseIntegrationTest {
   void should_success_promoteUser() throws Exception {
 
     AuthUser authUser = new AuthUser();
+    authUser.setId(UUID.randomUUID());
     authUser.setLogin("JR");
     authUser.setPassword(passwordEncoder.encode("password"));
     authUser.setRole(Role.USER);

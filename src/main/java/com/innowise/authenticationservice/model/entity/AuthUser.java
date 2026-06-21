@@ -25,7 +25,6 @@ import lombok.Setter;
 public class AuthUser extends BaseEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
   @Column(name = "id", updatable = false, nullable = false)
   private UUID id;
 

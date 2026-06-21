@@ -2,6 +2,7 @@ package com.innowise.authenticationservice.exception.handler;
 
 import com.innowise.authenticationservice.exception.ErrorResponse;
 import com.innowise.authenticationservice.exception.TokenLifetimeValidationException;
+import com.innowise.authenticationservice.exception.UserNotFoundException;
 import com.innowise.authenticationservice.exception.UserRegisterException;
 import com.innowise.authenticationservice.exception.WrongPasswordException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,7 +34,8 @@ public class GlobalExceptionHandler {
             status.value(),
             status.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI());
+            request.getRequestURI(),
+            ex.getClass().getSimpleName());
     return ResponseEntity.status(status).body(errorResponse);
   }
 
@@ -47,21 +49,23 @@ public class GlobalExceptionHandler {
             status.value(),
             status.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI());
+            request.getRequestURI(),
+            ex.getClass().getSimpleName());
     return ResponseEntity.status(status).body(errorResponse);
   }
 
   @ExceptionHandler(UserRegisterException.class)
-  public ResponseEntity<ErrorResponse> handleBadUserRegisterException(
+  public ResponseEntity<ErrorResponse> handleUserRegisterException(
       UserRegisterException ex, HttpServletRequest request) {
-    HttpStatus status = HttpStatus.UNAUTHORIZED;
+    HttpStatus status = HttpStatus.BAD_REQUEST;
     ErrorResponse errorResponse =
         new ErrorResponse(
             LocalDateTime.now(),
             status.value(),
             status.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI());
+            request.getRequestURI(),
+            ex.getClass().getSimpleName());
     return ResponseEntity.status(status).body(errorResponse);
   }
 
@@ -75,7 +79,8 @@ public class GlobalExceptionHandler {
             status.value(),
             status.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI());
+            request.getRequestURI(),
+            ex.getClass().getSimpleName());
     return ResponseEntity.status(status).body(errorResponse);
   }
 
@@ -89,7 +94,8 @@ public class GlobalExceptionHandler {
             status.value(),
             status.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI());
+            request.getRequestURI(),
+            ex.getClass().getSimpleName());
     return ResponseEntity.status(status).body(errorResponse);
   }
 
@@ -128,7 +134,8 @@ public class GlobalExceptionHandler {
             status.value(),
             status.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI());
+            request.getRequestURI(),
+            ex.getClass().getSimpleName());
     return ResponseEntity.status(status).body(errorResponse);
   }
 
@@ -142,7 +149,23 @@ public class GlobalExceptionHandler {
             status.value(),
             status.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI());
+            request.getRequestURI(),
+            ex.getClass().getSimpleName());
+    return ResponseEntity.status(status).body(errorResponse);
+  }
+
+  @ExceptionHandler(UserNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleUserNotFoundException(
+      UserNotFoundException ex, HttpServletRequest request) {
+    HttpStatus status = HttpStatus.NOT_FOUND;
+    ErrorResponse errorResponse =
+        new ErrorResponse(
+            LocalDateTime.now(),
+            status.value(),
+            status.getReasonPhrase(),
+            ex.getMessage(),
+            request.getRequestURI(),
+            ex.getClass().getSimpleName());
     return ResponseEntity.status(status).body(errorResponse);
   }
 }
