@@ -43,15 +43,18 @@ public class AuthServiceImpl implements AuthService {
   private final UserServiceClient userServiceClient;
 
   @Override
+  @Transactional
   public RegisterResponse register(RegisterRequest request) {
     if (authUserRepository.existsByLogin(request.getLogin())) {
       throw new UserRegisterException(USER_ALREADY_EXISTS_MESSAGE + request.getLogin());
     }
 
     UserCreateResponse createdUser = null;
+    AuthUser savedUser = null;
 
     try {
-      createdUser = userServiceClient.createUser(
+      createdUser =
+          userServiceClient.createUser(
               UserCreateRequest.builder()
                   .name(request.getName())
                   .surname(request.getSurname())
@@ -64,7 +67,8 @@ public class AuthServiceImpl implements AuthService {
       authUser.setLogin(request.getLogin());
       authUser.setPassword(passwordEncoder.encode(request.getPassword()));
 
-      AuthUser savedUser = authUserRepository.save(authUser);
+      savedUser = authUserRepository.save(authUser);
+
       String accessToken = jwtService.generateAccessToken(savedUser);
 
       return new RegisterResponse(
@@ -73,17 +77,27 @@ public class AuthServiceImpl implements AuthService {
           savedUser.getRole(),
           accessToken,
           "User registered successfully!");
+
     } catch (Exception e) {
-      log.error("Registration failed before compensation", e);
+      log.error("Registration failed! Starting compensation.", e);
+
       if (createdUser != null) {
         try {
           userServiceClient.deleteUser(createdUser.getId());
         } catch (Exception ex) {
-          log.error("Compensation failed", ex);
+          log.error("Compensation failed for UserService (userId: {})", createdUser.getId(), ex);
         }
       }
-      log.error("Registration failed", e);
-      throw new UserRegisterException("Registration failed");
+
+      if (savedUser != null) {
+        try {
+          authUserRepository.delete(savedUser);
+          authUserRepository.flush();
+        } catch (Exception ex) {
+          log.error("Compensation failed for AuthService (userId: {})", savedUser.getId(), ex);
+        }
+      }
+      throw new UserRegisterException("Registration failed!", e);
     }
   }
 
@@ -153,14 +167,5 @@ public class AuthServiceImpl implements AuthService {
         authUser.getLogin(),
         authUser.getRole(),
         "User promoted to admin successfully!");
-  }
-
-  private void rollbackAuthUser(UUID userId) {
-    try {
-      authUserRepository.deleteById(userId);
-      log.info("User with ID: {} has been rolled back!", userId);
-    } catch (Exception e) {
-      throw new UserRegisterException("Failed to rollback user with ID: " + userId);
-    }
   }
 }

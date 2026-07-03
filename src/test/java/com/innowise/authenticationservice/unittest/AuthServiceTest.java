@@ -137,9 +137,10 @@ class AuthServiceTest {
 
     assertThatThrownBy(() -> authService.register(request))
         .isInstanceOf(UserRegisterException.class)
-        .hasMessage("Registration failed");
+        .hasMessage("Registration failed!");
 
     verify(userServiceClient).deleteUser(authUser.getId());
+    verify(authUserRepository, never()).delete(any(AuthUser.class));
   }
 
   @Test
@@ -162,13 +163,46 @@ class AuthServiceTest {
     when(passwordEncoder.encode(request.getPassword())).thenReturn("encodedPassword");
     when(authUserRepository.save(any(AuthUser.class))).thenThrow(new RuntimeException("DB falls"));
 
-    doThrow(new RuntimeException("Network falls")).when(userServiceClient).deleteUser(authUser.getId());
+    doThrow(new RuntimeException("Network falls"))
+        .when(userServiceClient)
+        .deleteUser(authUser.getId());
 
     assertThatThrownBy(() -> authService.register(request))
         .isInstanceOf(UserRegisterException.class)
-        .hasMessage("Registration failed");
+        .hasMessage("Registration failed!");
 
     verify(userServiceClient).deleteUser(authUser.getId());
+  }
+
+  @Test
+  void should_rollbackAuthUserAndExternalUser_whenTokenGenerationFails() {
+    RegisterRequest request =
+        RegisterRequest.builder()
+            .login("DonDon")
+            .name("Don")
+            .surname("Jackson")
+            .birthDate(LocalDate.of(1990, 2, 2))
+            .email("don@email.com")
+            .password("password")
+            .build();
+
+    UserCreateResponse userCreateResponse = new UserCreateResponse();
+    userCreateResponse.setId(authUser.getId());
+
+    when(authUserRepository.existsByLogin(request.getLogin())).thenReturn(false);
+    when(userServiceClient.createUser(any(UserCreateRequest.class))).thenReturn(userCreateResponse);
+    when(passwordEncoder.encode(request.getPassword())).thenReturn("encodedPassword");
+    when(authUserRepository.save(any(AuthUser.class))).thenReturn(authUser);
+    when(jwtService.generateAccessToken(any(AuthUser.class)))
+        .thenThrow(new RuntimeException("JWT generation failed"));
+
+    assertThatThrownBy(() -> authService.register(request))
+        .isInstanceOf(UserRegisterException.class)
+        .hasMessage("Registration failed!");
+
+    verify(userServiceClient).deleteUser(authUser.getId());
+    verify(authUserRepository).delete(authUser);
+    verify(authUserRepository).flush();
   }
 
   @Test

@@ -8,35 +8,16 @@ import com.innowise.authenticationservice.model.dto.response.PromoteUserResponse
 import com.innowise.authenticationservice.model.dto.response.RegisterResponse;
 import com.innowise.authenticationservice.model.dto.response.TokenResponse;
 import com.innowise.authenticationservice.model.dto.response.TokenValidationResponse;
-import com.innowise.authenticationservice.service.AuthService;
-import jakarta.validation.Valid;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
- * The authentication user controller.
- *
- * <p>REST controller which manages authentication, authorization and role promotion. This
- * controller provides endpoints for user registration, login (authentication), token validation,
- * token refresh and role promotion.
+ * The authentication user controller interface. URL prefix: /api/v1/auth
  */
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("/api/v1/auth")
-public class AuthUserController {
-
-  private final AuthService authService;
+public interface AuthUserController {
 
   /**
-   * Registers a new user in application
+   * Registers a new user in application. URL: /api/v1/auth/register
    *
    * <p>This endpoint also validates the input data and throws exceptions if the data is invalid
    *
@@ -45,13 +26,10 @@ public class AuthUserController {
    * @return RegisterResponse wrapped in ResponseEntity which contains the following data: userId,
    *     login, role, accessToken, message
    */
-  @PostMapping("/register")
-  public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
-  }
+  ResponseEntity<RegisterResponse> register(RegisterRequest request);
 
   /**
-   * Authenticates a new user in application
+   * Authenticates a new user in application. URL: /api/v1/auth/login
    *
    * <p>This endpoint also validates the input data and throws exceptions if the data is invalid
    *
@@ -59,13 +37,10 @@ public class AuthUserController {
    * @return TokenResponse wrapped in ResponseEntity which contains the following data: accessToken,
    *     refreshToken
    */
-  @PostMapping("/login")
-  public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
-    return ResponseEntity.ok(authService.login(request));
-  }
+  ResponseEntity<TokenResponse> login(LoginRequest request);
 
   /**
-   * Validates the status of an existing access token
+   * Validates the status of an existing access token. URL: /api/v1/auth/validate
    *
    * <p>This endpoint also validates the input token and throws exceptions if the token is invalid
    *
@@ -74,14 +49,10 @@ public class AuthUserController {
    *     active(a boolean flag indicating whether the token is valid or expired), userId, login,
    *     role, message
    */
-  @PostMapping("/validate")
-  public ResponseEntity<TokenValidationResponse> validate(
-      @Valid @RequestBody TokenValidationRequest request) {
-    return ResponseEntity.ok(authService.validate(request));
-  }
+  ResponseEntity<TokenValidationResponse> validate(TokenValidationRequest request);
 
   /**
-   * Refreshes expired access token using a valid refresh token
+   * Refreshes expired access token using a valid refresh token. URL: /api/v1/auth/refresh
    *
    * <p>This endpoint also validates the input token and throws exceptions if the token is invalid
    *
@@ -89,21 +60,14 @@ public class AuthUserController {
    * @return TokenResponse wrapped in ResponseEntity which contains the following data: new
    *     accessToken, refreshToken
    */
-  @PostMapping("/refresh")
-  public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
-    return ResponseEntity.ok(authService.refresh(request));
-  }
+  ResponseEntity<TokenResponse> refresh(RefreshTokenRequest request);
 
   /**
-   * Promotes a user from the USER role to the ADMIN role
+   * Promotes a user from the USER role to the ADMIN role. URL: /api/v1/auth/promote/{id}
    *
    * @param id the user id in UUID format
    * @return PromoteUserResponse wrapped in ResponseEntity which contains the following data:
    *     userId, login, role, message
    */
-  @PreAuthorize("hasRole('ADMIN')")
-  @PostMapping("/promote/{id}")
-  public ResponseEntity<PromoteUserResponse> promote(@PathVariable UUID id) {
-    return ResponseEntity.status(HttpStatus.OK).body(authService.promoteToAdmin(id));
-  }
+  ResponseEntity<PromoteUserResponse> promote(UUID id);
 }
