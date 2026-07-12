@@ -122,4 +122,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     response.getWriter().write(objectMapper.writeValueAsString(body));
   }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    return request.getServletPath().startsWith("/actuator");
+  }
 }
