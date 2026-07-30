@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: authenticationservice
+    name: authservice
 
   datasource:
     url: ${SPRING_DATASOURCE_URL}

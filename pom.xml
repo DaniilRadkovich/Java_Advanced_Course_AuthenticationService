@@ -10,10 +10,10 @@
     <relativePath/>
   </parent>
   <groupId>com.innowise</groupId>
-  <artifactId>authenticationservice</artifactId>
+  <artifactId>authservice</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>authenticationservice</name>
-  <description>authenticationservice</description>
+  <name>authservice</name>
+  <description>authservice</description>
   <url/>
   <licenses>
     <license/>
@@ -108,6 +108,11 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.logstash.logback</groupId>
+      <artifactId>logstash-logback-encoder</artifactId>
+      <version>7.4</version>
     </dependency>
   </dependencies>
 

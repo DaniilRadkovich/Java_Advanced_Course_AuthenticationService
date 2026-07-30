@@ -1,6 +1,6 @@
 spring:
   application:
-    name: authenticationservice
+    name: authservice
 
   profiles:
     active: docker
@@ -23,4 +23,9 @@ management:
     readinessstate:
       enabled: true
     livenessstate:
+      enabled: true
+
+logging:
+  structured:
+    json:
       enabled: true

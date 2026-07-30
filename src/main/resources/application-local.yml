@@ -1,6 +1,6 @@
 spring:
   application:
-    name: authenticationservice
+    name: authservice
 
   datasource:
     url: jdbc:postgresql://localhost:5432/authservicedb
